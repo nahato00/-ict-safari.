@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICT Safari — Field Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bark:#211C13;
+    --grass:#F2E7C9;
+    --acacia:#3F5B36;
+    --acacia-dark:#2C4126;
+    --ochre:#C6821F;
+    --rust:#8A3A24;
+    --cream:#FBF6E8;
+    --line:#c9b98a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    background-image:
+      radial-gradient(circle at 10% 10%, rgba(63,91,54,0.06) 0, transparent 45%),
+      radial-gradient(circle at 90% 90%, rgba(198,130,31,0.08) 0, transparent 40%);
+    color:var(--bark);
+    font-family:'Fraunces', serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* Header / masthead */
+  header{
+    border-bottom:3px solid var(--bark);
+    padding-bottom:18px;
+    margin-bottom:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .brandline{display:flex; flex-direction:column; gap:2px;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--acacia-dark);
+  }
+  h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:56px;
+    line-height:0.9;
+    letter-spacing:0.01em;
+    margin:2px 0 0;
+    color:var(--bark);
+  }
+  h1 span{color:var(--rust);}
+  .tagline{
+    font-style:italic;
+    font-size:14.5px;
+    color:#4c4433;
+    max-width:340px;
+    text-align:right;
+    line-height:1.4;
+  }
+
+  /* Tabs styled as trail signposts */
+  .tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:26px;
+  }
+  .tab{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:10px 18px;
+    background:transparent;
+    border:2px solid var(--bark);
+    color:var(--bark);
+    cursor:pointer;
+    position:relative;
+    transition:background .15s ease, color .15s ease, transform .1s ease;
+  }
+  .tab:hover{transform:translateY(-1px);}
+  .tab.active{background:var(--bark); color:var(--grass);}
+  .tab .count{
+    display:inline-block;
+    margin-left:8px;
+    background:var(--ochre);
+    color:var(--bark);
+    font-weight:700;
+    padding:1px 6px;
+    font-size:11px;
+  }
+  .tab.active .count{background:var(--rust); color:var(--cream);}
+
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  /* Submit form */
+  .card{
+    background:var(--cream);
+    border:1.5px solid var(--bark);
+    box-shadow:5px 5px 0 var(--acacia);
+    padding:26px 26px 22px;
+  }
+  label{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--acacia-dark);
+    margin-bottom:6px;
+    margin-top:18px;
+  }
+  label:first-of-type{margin-top:0;}
+  input[type=text], textarea, select{
+    width:100%;
+    background:#fff;
+    border:1.5px solid var(--bark);
+    padding:10px 12px;
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    color:var(--bark);
+    outline:none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus{
+    border-color:var(--rust);
+    box-shadow:0 0 0 3px rgba(138,58,36,0.12);
+  }
+  textarea{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    min-height:150px;
+    resize:vertical;
+    line-height:1.5;
+  }
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:600px){ .row2{grid-template-columns:1fr;} }
+
+  .submit-btn{
+    margin-top:24px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:20px;
+    letter-spacing:.03em;
+    background:var(--rust);
+    color:var(--cream);
+    border:none;
+    padding:13px 28px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .submit-btn:hover{background:var(--acacia-dark); transform:translateY(-1px);}
+  .submit-btn:active{transform:translateY(0);}
+  .submit-btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  .status-msg{
+    margin-top:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    padding:9px 12px;
+    display:none;
+  }
+  .status-msg.ok{display:block; background:rgba(63,91,54,.12); color:var(--acacia-dark); border-left:3px solid var(--acacia);}
+  .status-msg.err{display:block; background:rgba(138,58,36,.1); color:var(--rust); border-left:3px solid var(--rust);}
+
+  /* Log / roster view */
+  .toolbar{
+    display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:center;
+  }
+  .toolbar input[type=text]{max-width:280px;}
+  .toolbar select{max-width:220px;}
+  .refresh-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    background:none;
+    border:1.5px solid var(--bark);
+    padding:9px 14px;
+    cursor:pointer;
+  }
+  .refresh-btn:hover{background:var(--bark); color:var(--grass);}
+
+  .entry{
+    border:1.5px solid var(--bark);
+    background:var(--cream);
+    margin-bottom:14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .entry-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px;
+    background:var(--acacia);
+    color:var(--grass);
+    cursor:pointer;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .entry-who{display:flex; align-items:baseline; gap:10px;}
+  .entry-name{font-family:'Bebas Neue', sans-serif; font-size:20px; letter-spacing:.02em;}
+  .entry-task{font-family:'JetBrains Mono', monospace; font-size:11.5px; opacity:.85;}
+  .entry-time{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--bark);
+    background:var(--ochre);
+    padding:3px 9px;
+    white-space:nowrap;
+  }
+  .entry-body{
+    padding:0 16px;
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease, padding .25s ease;
+  }
+  .entry.open .entry-body{padding:16px; max-height:600px; overflow:auto;}
+  .entry-body pre{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    line-height:1.55;
+    background:#fff;
+    border:1px solid var(--line);
+    padding:12px;
+    white-space:pre-wrap;
+    word-break:break-word;
+    margin:0 0 10px;
+  }
+  .entry-link a{color:var(--rust); word-break:break-all;}
+  .entry-notes{font-style:italic; font-size:13.5px; color:#4c4433;}
+
+  .grade-badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    white-space:nowrap;
+    background:var(--bark);
+    color:var(--grass);
+  }
+  .grade-badge.ungraded{background:transparent; border:1.5px dashed var(--cream); color:var(--cream); opacity:.75;}
+
+  .grade-box{
+    border-top:1.5px dashed var(--line);
+    margin-top:14px;
+    padding-top:14px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:flex-end;
+  }
+  .grade-box .g-field{display:flex; flex-direction:column; gap:5px;}
+  .grade-box label{margin:0;}
+  .grade-box input[type=text]{width:90px; text-align:center; font-family:'JetBrains Mono', monospace;}
+  .grade-box .g-feedback{flex:1; min-width:180px;}
+  .grade-box textarea{min-height:44px; font-family:'Fraunces', serif; font-size:13.5px;}
+  .save-grade-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    background:var(--acacia);
+    color:var(--grass);
+    border:none;
+    padding:10px 16px;
+    cursor:pointer;
+    height:40px;
+  }
+  .save-grade-btn:hover{background:var(--acacia-dark);}
+  .g-saved-msg{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    color:var(--acacia-dark);
+    margin-left:4px;
+    display:none;
+  }
+
+  .empty{
+    text-align:center;
+    padding:50px 20px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:#7a6f52;
+    border:1.5px dashed var(--line);
+  }
+
+  .stats{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:#5c5237;
+    margin-bottom:16px;
+    letter-spacing:.02em;
+  }
+
+  footer{
+    margin-top:50px;
+    border-top:1.5px solid var(--line);
+    padding-top:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    color:#8a7f60;
+    text-align:center;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brandline">
+      <div class="eyebrow">Grade 12 · ICT Expedition</div>
+      <h1>ICT<span>SAFARI</span></h1>
+    </div>
+    <div class="tagline">Track the herd. Every submission is a sighting logged to the trail — nothing gets lost in the tall grass.</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="submit">Submit Homework</button>
+    <button class="tab" data-tab="log">Field Log <span class="count" id="tab-count">0</span></button>
+  </div>
+
+  <!-- SUBMIT PANEL -->
+  <section class="panel active" id="panel-submit">
+    <div class="card">
+      <label for="f-name">Your name</label>
+      <input type="text" id="f-name" placeholder="e.g. Thandiwe M.">
+
+      <div class="row2">
+        <div>
+          <label for="f-task">Assignment</label>
+          <input type="text" id="f-task" placeholder="e.g. Week 6 — Loops & Arrays">
+        </div>
+        <div>
+          <label for="f-type">Submission type</label>
+          <select id="f-type">
+            <option value="code">Pasted code</option>
+            <option value="link">Link (repo / doc / drive)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="wrap-code">
+        <label for="f-code">Paste your code, or load a file below</label>
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+          <input type="file" id="f-file" accept=".txt,.py,.js,.jsx,.ts,.tsx,.html,.css,.java,.c,.cpp,.cs,.php,.rb,.go,.json,.md,.sql,.sh">
+          <span id="file-name-msg" style="font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--acacia-dark); display:none;"></span>
+        </div>
+        <textarea id="f-code" placeholder="// paste your code here, or choose a file above"></textarea>
+      </div>
+      <div id="wrap-link" style="display:none;">
+        <label for="f-link">Link to your work</label>
+        <input type="text" id="f-link" placeholder="https://...">
+      </div>
+
+      <label for="f-notes">Notes for your teacher (optional)</label>
+      <textarea id="f-notes" style="min-height:70px; font-family:'Fraunces',serif; font-size:14.5px;" placeholder="Anything you got stuck on, or want them to know"></textarea>
+
+      <button class="submit-btn" id="btn-submit">Log Submission →</button>
+      <div class="status-msg" id="status"></div>
+    </div>
+  </section>
+
+  <!-- LOG PANEL -->
+  <section class="panel" id="panel-log">
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Search by name or assignment...">
+      <select id="filter-task">
+        <option value="">All assignments</option>
+      </select>
+      <button class="refresh-btn" id="btn-refresh">↻ Refresh</button>
+    </div>
+    <div class="stats" id="stats">Loading field log…</div>
+    <div id="entries"></div>
+  </section>
+
+  <footer>ICT Safari · shared class field log · everyone in this room can see this list</footer>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'ict-safari-submissions';
+  let submissions = [];
+
+  const tabs = document.querySelectorAll('.tab');
+  const panels = { submit: document.getElementById('panel-submit'), log: document.getElementById('panel-log') };
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    Object.values(panels).forEach(p => p.classList.remove('active'));
+    panels[t.dataset.tab].classList.add('active');
+    if(t.dataset.tab === 'log') loadSubmissions();
+  }));
+
+  const typeSel = document.getElementById('f-type');
+  const wrapCode = document.getElementById('wrap-code');
+  const wrapLink = document.getElementById('wrap-link');
+  typeSel.addEventListener('change', () => {
+    if(typeSel.value === 'code'){ wrapCode.style.display='block'; wrapLink.style.display='none'; }
+    else { wrapCode.style.display='none'; wrapLink.style.display='block'; }
+  });
+
+  const fileInput = document.getElementById('f-file');
+  const fileNameMsg = document.getElementById('file-name-msg');
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if(!file) return;
+    if(file.size > 2 * 1024 * 1024){
+      showStatus('That file is too large to load as text (max ~2MB). Try a smaller file, or submit a link instead.', false);
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('f-code').value = e.target.result;
+      fileNameMsg.textContent = 'Loaded: ' + file.name;
+      fileNameMsg.style.display = 'inline';
+    };
+    reader.onerror = () => {
+      showStatus('Could not read that file. Try pasting the code directly instead.', false);
+    };
+    reader.readAsText(file);
+  });
+
+  function showStatus(msg, ok){
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  async function loadSubmissions(){
+    document.getElementById('stats').textContent = 'Loading field log…';
+    try{
+      const res = await window.storage.get(STORAGE_KEY, true);
+      submissions = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      submissions = [];
+    }
+    renderLog();
+  }
+
+  function renderTaskFilter(){
+    const sel = document.getElementById('filter-task');
+    const current = sel.value;
+    const tasks = Array.from(new Set(submissions.map(s => s.task).filter(Boolean))).sort();
+    sel.innerHTML = '<option value="">All assignments</option>' + tasks.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+    sel.value = current;
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function fmtTime(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, {month:'short', day:'numeric'}) + ' · ' + d.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function renderLog(){
+    document.getElementById('tab-count').textContent = submissions.length;
+    renderTaskFilter();
+    const query = document.getElementById('search').value.trim().toLowerCase();
+    const taskFilter = document.getElementById('filter-task').value;
+    let list = submissions.slice().sort((a,b) => new Date(b.time) - new Date(a.time));
+    if(query){
+      list = list.filter(s => (s.name||'').toLowerCase().includes(query) || (s.task||'').toLowerCase().includes(query));
+    }
+    if(taskFilter){
+      list = list.filter(s => s.task === taskFilter);
+    }
+    const uniqueStudents = new Set(submissions.map(s => (s.name||'').toLowerCase())).size;
+    const graded = submissions.filter(s => s.grade !== undefined && s.grade !== null && s.grade !== '');
+    const numericGrades = graded.map(s => parseFloat(s.grade)).filter(n => !isNaN(n));
+    const avgStr = numericGrades.length ? ` · avg grade ${(numericGrades.reduce((a,b)=>a+b,0)/numericGrades.length).toFixed(1)}` : '';
+    document.getElementById('stats').textContent = `${submissions.length} sighting${submissions.length===1?'':'s'} logged · ${uniqueStudents} student${uniqueStudents===1?'':'s'} spotted · ${graded.length} graded${avgStr} · showing ${list.length}`;
+
+    const container = document.getElementById('entries');
+    if(list.length === 0){
+      container.innerHTML = '<div class="empty">No sightings yet. The trail is quiet — check back after submissions come in.</div>';
+      return;
+    }
+    container.innerHTML = list.map((s) => {
+      const id = s.id;
+      let bodyContent = '';
+      if(s.subType === 'link' && s.link){
+        bodyContent += `<div class="entry-link"><a href="${escapeHtml(s.link)}" target="_blank" rel="noopener">${escapeHtml(s.link)}</a></div>`;
+      } else if(s.code){
+        bodyContent += `<pre>${escapeHtml(s.code)}</pre>`;
+      }
+      if(s.notes){
+        bodyContent += `<div class="entry-notes">"${escapeHtml(s.notes)}"</div>`;
+      }
+      const hasGrade = s.grade !== undefined && s.grade !== null && s.grade !== '';
+      const badge = hasGrade
+        ? `<span class="grade-badge">${escapeHtml(s.grade)}</span>`
+        : `<span class="grade-badge ungraded">ungraded</span>`;
+      bodyContent += `
+        <div class="grade-box">
+          <div class="g-field">
+            <label>Grade</label>
+            <input type="text" id="grade-${id}" value="${escapeHtml(s.grade || '')}" placeholder="e.g. 8/10">
+          </div>
+          <div class="g-field g-feedback">
+            <label>Feedback (optional)</label>
+            <textarea id="feedback-${id}" placeholder="Quick feedback for the student">${escapeHtml(s.feedback || '')}</textarea>
+          </div>
+          <button class="save-grade-btn" onclick="window.__saveGrade('${id}')">Save grade</button>
+          <span class="g-saved-msg" id="saved-${id}">Saved ✓</span>
+        </div>`;
+      return `
+      <div class="entry" data-id="${id}">
+        <div class="entry-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="entry-who">
+            <span class="entry-name">${escapeHtml(s.name || 'Unnamed')}</span>
+            <span class="entry-task">${escapeHtml(s.task || 'No assignment given')}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${badge}
+            <span class="entry-time">${fmtTime(s.time)}</span>
+          </div>
+        </div>
+        <div class="entry-body">${bodyContent}</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.__saveGrade = async function(id){
+    const gradeVal = document.getElementById('grade-' + id).value.trim();
+    const feedbackVal = document.getElementById('feedback-' + id).value.trim();
+    const savedMsg = document.getElementById('saved-' + id);
+    try{
+      let res;
+      try{ res = await window.storage.get(STORAGE_KEY, true); }catch(e){ res = null; }
+      const current = res && res.value ? JSON.parse(res.value) : [];
+      const idx = current.findIndex(s => s.id === id);
+      if(idx === -1) throw new Error('not found');
+      current[idx].grade = gradeVal;
+      current[idx].feedback = feedbackVal;
+      const saved = await window.storage.set(STORAGE_KEY, JSON.stringify(current), true);
+      if(!saved) throw new Error('save failed');
+      submissions = current;
+      savedMsg.style.display = 'inline';
+      setTimeout(() => { savedMsg.style.display = 'none'; }, 2000);
+      renderLog();
+      // keep this entry open after re-render
+      const el = document.querySelector(`.entry[data-id="${id}"]`);
+      if(el) el.classList.add('open');
+    }catch(e){
+      alert('Could not save the grade — check your connection and try again.');
+    }
+  };
+
+  document.getElementById('search').addEventListener('input', renderLog);
+  document.getElementById('filter-task').addEventListener('change', renderLog);
+  document.getElementById('btn-refresh').addEventListener('click', loadSubmissions);
+
+  document.getElementById('btn-submit').addEventListener('click', async () => {
+    const name = document.getElementById('f-name').value.trim();
+    const task = document.getElementById('f-task').value.trim();
+    const subType = typeSel.value;
+    const code = document.getElementById('f-code').value;
+    const link = document.getElementById('f-link').value.trim();
+    const notes = document.getElementById('f-notes').value.trim();
+
+    if(!name){ showStatus('Enter your name before submitting.', false); return; }
+    if(!task){ showStatus('Enter the assignment name.', false); return; }
+    if(subType === 'code' && !code.trim()){ showStatus('Paste your code, or switch to link submission.', false); return; }
+    if(subType === 'link' && !link){ showStatus('Add a link, or switch to pasted code.', false); return; }
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.textContent = 'Logging…';
+
+    try{
+      let res;
+      try{
+        res = await window.storage.get(STORAGE_KEY, true);
+      }catch(e){ res = null; }
+      const current = res && res.value ? JSON.parse(res.value) : [];
+      current.push({
+        id: 'sub_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+        name, task, subType,
+        code: subType === 'code' ? code : '',
+        link: subType === 'link' ? link : '',
+        notes,
+        time: new Date().toISOString(),
+        grade: '', feedback: ''
+      });
+      const saved = await window.storage.set(STORAGE_KEY, JSON.stringify(current), true);
+      if(!saved) throw new Error('save failed');
+      submissions = current;
+      showStatus(`Logged! ${name}, your submission for "${task}" is on the trail.`, true);
+      document.getElementById('f-code').value = '';
+      document.getElementById('f-link').value = '';
+      document.getElementById('f-notes').value = '';
+    }catch(e){
+      showStatus('Could not save your submission — check your connection and try again.', false);
+    }finally{
+      btn.disabled = false; btn.textContent = 'Log Submission →';
+    }
+  });
+
+  loadSubmissions();
+})();
+</script>
+</body>
+</html>
